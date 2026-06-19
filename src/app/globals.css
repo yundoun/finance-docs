@@ -10,6 +10,41 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+
+  /* Primary: Deep Blue */
+  --color-primary-50: #EFF6FF;
+  --color-primary-100: #DBEAFE;
+  --color-primary-200: #BFDBFE;
+  --color-primary-300: #93C5FD;
+  --color-primary-400: #60A5FA;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #1E40AF;
+  --color-primary-700: #1E3A8A;
+  --color-primary-800: #1E3A7B;
+  --color-primary-900: #172554;
+
+  /* Secondary: Emerald Green */
+  --color-secondary-50: #ECFDF5;
+  --color-secondary-100: #D1FAE5;
+  --color-secondary-200: #A7F3D0;
+  --color-secondary-300: #6EE7B7;
+  --color-secondary-400: #34D399;
+  --color-secondary-500: #10B981;
+  --color-secondary-600: #059669;
+  --color-secondary-700: #047857;
+
+  /* Neutral */
+  --color-neutral-50: #F8FAFC;
+  --color-neutral-100: #F1F5F9;
+  --color-neutral-200: #E2E8F0;
+  --color-neutral-300: #CBD5E1;
+  --color-neutral-400: #94A3B8;
+  --color-neutral-500: #64748B;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1E293B;
+  --color-neutral-900: #0F172A;
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -83,40 +118,6 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -125,6 +126,69 @@
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    @apply font-sans scroll-smooth;
+    scroll-padding-top: 5rem;
   }
+}
+
+/* MDX prose styles */
+.prose {
+  @apply text-neutral-700 leading-7;
+}
+.prose h1 {
+  @apply text-3xl font-bold text-neutral-900 mt-0 mb-4;
+}
+.prose h2 {
+  @apply text-2xl font-semibold text-neutral-900 mt-10 mb-4 pb-2 border-b border-neutral-200;
+}
+.prose h3 {
+  @apply text-xl font-semibold text-neutral-900 mt-8 mb-3;
+}
+.prose h4 {
+  @apply text-lg font-semibold text-neutral-800 mt-6 mb-2;
+}
+.prose p {
+  @apply mb-4;
+}
+.prose a {
+  @apply text-primary-600 underline underline-offset-2 hover:text-primary-700;
+}
+.prose strong {
+  @apply font-semibold text-neutral-900;
+}
+.prose ul {
+  @apply list-disc pl-6 mb-4 space-y-1;
+}
+.prose ol {
+  @apply list-decimal pl-6 mb-4 space-y-1;
+}
+.prose li {
+  @apply text-neutral-700;
+}
+.prose blockquote {
+  @apply border-l-4 border-primary-200 bg-primary-50/50 pl-4 py-2 my-4 text-neutral-600 italic;
+}
+.prose code {
+  @apply bg-neutral-100 rounded px-1.5 py-0.5 text-sm font-mono text-neutral-800;
+}
+.prose pre {
+  @apply bg-neutral-900 text-neutral-100 rounded-lg p-4 overflow-x-auto mb-4;
+}
+.prose pre code {
+  @apply bg-transparent p-0 text-inherit;
+}
+.prose table {
+  @apply w-full border-collapse mb-6;
+}
+.prose thead {
+  @apply bg-neutral-50;
+}
+.prose th {
+  @apply border border-neutral-200 px-4 py-2 text-left text-sm font-semibold text-neutral-700;
+}
+.prose td {
+  @apply border border-neutral-200 px-4 py-2 text-sm;
+}
+.prose hr {
+  @apply border-neutral-200 my-8;
 }
