@@ -33,7 +33,7 @@ export function Header({ onMenuToggle, isMenuOpen, onSearchOpen }: HeaderProps) 
 
         {/* Logo */}
         <Link
-          href={`/${locale}`}
+          href="/"
           className="text-lg font-bold text-primary-700"
         >
           {siteConfig.logo.text}

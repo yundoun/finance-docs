@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Search,
   Send,
@@ -14,15 +15,11 @@ import {
   MessageCircle,
   Code,
   Bot,
-  FileText,
-  Loader2,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { Footer } from "@/components/layout/footer";
 import { SearchModal, useSearchShortcut } from "@/components/search/search-modal";
-import { useServices } from "@/providers/service-provider";
 import type { CategoryGroup } from "@/ports/docs";
-import type { ChatMessage } from "@/ports/chat";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   basics: <TrendingUp size={24} />,
@@ -48,50 +45,15 @@ export function LandingPageClient({ categories }: LandingPageClientProps) {
   const openSearch = useCallback(() => setSearchOpen(true), []);
   useSearchShortcut(openSearch);
 
-  // Hero chat state
-  const { chat: chatPort } = useServices();
+  const router = useRouter();
   const [heroInput, setHeroInput] = useState("");
-  const [heroAnswer, setHeroAnswer] = useState("");
-  const [heroLoading, setHeroLoading] = useState(false);
-  const [heroAsked, setHeroAsked] = useState(false);
-  const heroAbortRef = useRef(false);
-  const heroAnswerRef = useRef<HTMLDivElement>(null);
 
-  const askHero = useCallback(
-    async (question: string) => {
-      if (!question.trim() || heroLoading) return;
-      setHeroInput(question);
-      setHeroLoading(true);
-      setHeroAsked(true);
-      setHeroAnswer("");
-      heroAbortRef.current = false;
-
-      const msg: ChatMessage = {
-        id: "hero",
-        role: "user",
-        content: question.trim(),
-        timestamp: Date.now(),
-      };
-
-      try {
-        let acc = "";
-        for await (const token of chatPort.sendMessage([msg])) {
-          if (heroAbortRef.current) break;
-          acc += token;
-          setHeroAnswer(acc);
-        }
-      } catch {
-        setHeroAnswer("죄송합니다. 응답을 가져오는 중 오류가 발생했습니다.");
-      } finally {
-        setHeroLoading(false);
-      }
-
-      // Scroll to answer
-      setTimeout(() => {
-        heroAnswerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
+  const goToChat = useCallback(
+    (question: string) => {
+      if (!question.trim()) return;
+      router.push(`/chat?q=${encodeURIComponent(question.trim())}`);
     },
-    [chatPort, heroLoading],
+    [router],
   );
 
   return (
@@ -155,96 +117,33 @@ export function LandingPageClient({ categories }: LandingPageClientProps) {
                   value={heroInput}
                   onChange={(e) => setHeroInput(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") askHero(heroInput);
+                    if (e.key === "Enter") goToChat(heroInput);
                   }}
                   placeholder="금융에 대해 질문하세요..."
                   className="flex-1 bg-transparent text-sm text-neutral-900 outline-none placeholder:text-neutral-400"
-                  disabled={heroLoading}
                 />
                 <button
-                  onClick={() => askHero(heroInput)}
-                  disabled={!heroInput.trim() || heroLoading}
+                  onClick={() => goToChat(heroInput)}
+                  disabled={!heroInput.trim()}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-white transition-colors hover:bg-primary-700 disabled:bg-neutral-100 disabled:text-neutral-400"
                 >
-                  {heroLoading ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <Send size={14} />
-                  )}
+                  <Send size={14} />
                 </button>
               </div>
 
               {/* Example query chips */}
-              {!heroAsked && (
-                <div className="mt-4 flex flex-wrap justify-center gap-2">
-                  {EXAMPLE_QUERIES.map((q) => (
-                    <button
-                      key={q}
-                      onClick={() => askHero(q)}
-                      className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs text-neutral-600 transition-colors hover:border-secondary-300 hover:text-secondary-700"
-                    >
-                      {q}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Hero AI Answer */}
-            {heroAsked && (
-              <div
-                ref={heroAnswerRef}
-                className="mx-auto mt-8 max-w-lg rounded-xl border border-neutral-200 bg-white p-5 text-left shadow-sm"
-              >
-                {/* User question */}
-                <div className="mb-4 flex items-start gap-2">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-600 text-white">
-                    <MessageCircle size={12} />
-                  </div>
-                  <p className="text-sm font-medium text-neutral-900">
-                    {heroInput}
-                  </p>
-                </div>
-
-                {/* AI answer */}
-                <div className="flex items-start gap-2">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary-100 text-secondary-700">
-                    <Bot size={12} />
-                  </div>
-                  <div className="min-w-0 flex-1 text-sm leading-relaxed text-neutral-700">
-                    {heroAnswer ? (
-                      <HeroMarkdown content={heroAnswer} />
-                    ) : heroLoading ? (
-                      <span className="inline-flex gap-1 text-neutral-400">
-                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
-                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
-                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-
-                {/* CTA to full chat */}
-                {!heroLoading && heroAnswer && (
-                  <div className="mt-4 flex items-center gap-2 border-t border-neutral-100 pt-3">
-                    <Link
-                      href="/chat"
-                      className="flex items-center gap-1.5 rounded-lg bg-secondary-50 px-3 py-2 text-xs font-medium text-secondary-700 transition-colors hover:bg-secondary-100"
-                    >
-                      <MessageCircle size={13} />
-                      이어서 대화하기
-                    </Link>
-                    <Link
-                      href="/ko/basics/stocks"
-                      className="flex items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-2 text-xs font-medium text-primary-700 transition-colors hover:bg-primary-100"
-                    >
-                      <FileText size={13} />
-                      문서 둘러보기
-                    </Link>
-                  </div>
-                )}
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                {EXAMPLE_QUERIES.map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => goToChat(q)}
+                    className="rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs text-neutral-600 transition-colors hover:border-secondary-300 hover:text-secondary-700"
+                  >
+                    {q}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
           </div>
         </section>
 
@@ -323,20 +222,4 @@ export function LandingPageClient({ categories }: LandingPageClientProps) {
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
-}
-
-function HeroMarkdown({ content }: { content: string }) {
-  const html = content
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(
-      /`(.+?)`/g,
-      '<code class="rounded bg-neutral-100 px-1 py-0.5 text-xs font-mono">$1</code>',
-    )
-    .replace(/\n/g, "<br />");
-
-  return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }

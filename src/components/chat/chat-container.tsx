@@ -8,11 +8,21 @@ import { cn } from "@/lib/utils";
 
 interface ChatContainerProps {
   className?: string;
+  initialQuery?: string;
 }
 
-export function ChatContainer({ className }: ChatContainerProps) {
+export function ChatContainer({ className, initialQuery }: ChatContainerProps) {
   const { messages, sendMessage, isStreaming, stopStreaming } = useChat();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const initialSentRef = useRef(false);
+
+  // Auto-send initial query from URL param (e.g. /chat?q=...)
+  useEffect(() => {
+    if (initialQuery && !initialSentRef.current && messages.length === 0) {
+      initialSentRef.current = true;
+      sendMessage(initialQuery);
+    }
+  }, [initialQuery, sendMessage, messages.length]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {

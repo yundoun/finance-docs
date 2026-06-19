@@ -4,7 +4,7 @@ import { ChatContainer } from "../chat-container";
 import { Trash2 } from "lucide-react";
 import { useChat } from "@/hooks/use-chat";
 
-export function ChatPageLayout() {
+export function ChatPageLayout({ initialQuery }: { initialQuery?: string }) {
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       {/* Chat header bar */}
@@ -21,7 +21,7 @@ export function ChatPageLayout() {
       </div>
 
       {/* Chat container fills remaining space */}
-      <ChatContainer className="flex-1" />
+      <ChatContainer className="flex-1" initialQuery={initialQuery} />
     </div>
   );
 }
